@@ -1,31 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const faker = require('faker');
+
+const CategoryServices = require('./../services/category.service');
+const service = new CategoryServices();
 
 router.get('/', (req, res) => {
-  const categories = [];
-  const { size } = req.query;
-  const limit = size || 10;
+  const categories = service.find();
 
-  for (let index = 0; index < limit; index++) {
-    categories.push({
-      category: faker.commerce.product(),
+  if (categories) {
+    res.status(200).json(categories);
+  } else {
+    res.status(404).json({
+      message: 'Category not found',
     });
   }
-
-  res.json(categories);
 });
 
 router.get('/:id', (req, res) => {
   const { id } = req.params;
+  const category = service.findOne(id);
 
-  if (id === '999') {
-    res.status(404).json({
-      message: 'Not found',
-    });
+  if (id) {
+    res.status(200).json(category);
   } else {
-    res.json({
+    res.status(404).json({
       id,
+      message: 'Category not found'
     });
   }
 });
