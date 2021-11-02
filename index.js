@@ -4,8 +4,14 @@ const port = 3000;
 
 app.get('/', (req, res) => {
   res.send('Hello world from Express');
-})
+});
 
+app.get('/products', (req, res) => {
+  res.json({
+    name: 'Product 1',
+    price: 1000,
+  });
+});
 
 app.listen(port, () => {
   console.log('Server running on port: ' + port);
