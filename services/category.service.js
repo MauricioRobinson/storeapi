@@ -17,19 +17,57 @@ class CategoryServices {
     }
   }
 
-  find(){
-    return this.categories;
+  async find() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.categories);
+      }, 5000);
+    });
   }
 
-  findOne(id) {
+  async findOne(id) {
     return this.categories.find((item) => item.id === id);
   }
 
-  create() {}
+  async create(data) {
+    const newCategory = {
+      id: faker.datatype.uuid(),
+      ...data,
+    };
 
-  update(){}
+    this.categories.push(newCategory);
 
-  delete(){}
+    return newCategory;
+  }
+
+  async update(id, changes) {
+    const index = this.categories.findIndex((item) => item.id === id);
+    if (index === -1) {
+      throw new Error('Error: Category cannot be changed');
+    }
+
+    const category = this.categories[index];
+    this.categories[index] = {
+      ...category,
+      ...changes,
+    };
+
+    return this.categories[index];
+  }
+
+  async delete(id) {
+    const index = this.categories.findIndex((item) => item.id === id);
+    if (index === -1) {
+      throw new Error('Error: Category cannot be changed');
+    }
+
+    this.categories.splice(index, 1);
+
+    return {
+      message: 'The category have been deleted',
+      id,
+    };
+  }
 }
 
 module.exports = CategoryServices;

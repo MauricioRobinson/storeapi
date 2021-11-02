@@ -19,19 +19,56 @@ class UserServices {
     }
   }
 
-  find() {
-    return this.users;
+  async find() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.users);
+      }, 5000);
+    });
   }
 
-  findOne(id) {
+  async findOne(id) {
     return this.users.find((item) => item.id === id);
   }
 
-  create() {}
+  async create(data) {
+    const newUser = {
+      id: faker.datatype.uuid(),
+      ...data,
+    };
+    this.users.push(newUser);
 
-  update() {}
+    return newUser;
+  }
 
-  delete() {}
+  async update(id, changes) {
+    const index = this.users.findIndex((item) => item.id === id);
+    if (index === -1) {
+      throw new Error('Error: The users cannot be updated');
+    }
+
+    const user = this.users[index];
+    this.users[index] = {
+      ...user,
+      ...changes,
+    };
+
+    return this.users[index];
+  }
+
+  async delete(id) {
+    const index = this.users.findIndex((item) => item.id === id);
+    if (index === -1) {
+      throw new Error('Error: The user cannot be deleted');
+    }
+
+    this.users.splice(index, 1);
+
+    return {
+      message: 'The user have been deleted',
+      id,
+    };
+  }
 }
 
 module.exports = UserServices;
