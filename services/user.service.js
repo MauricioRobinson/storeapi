@@ -23,7 +23,7 @@ class UserServices {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(this.users);
-      }, 5000);
+      }, 3000);
     });
   }
 
