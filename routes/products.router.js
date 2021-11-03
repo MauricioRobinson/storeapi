@@ -39,17 +39,15 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const body = req.body;
     const updateProduct = await service.update(id, body);
 
     res.status(200).json(updateProduct);
-  } catch (err) {
-    res.status(404).json({
-      message: err.message,
-    });
+  } catch (error) {
+    next(error);
   }
 });
 
