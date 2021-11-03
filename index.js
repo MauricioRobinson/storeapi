@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const routerApi = require('./routes');
 
 const {
@@ -11,6 +12,18 @@ const port = 3000;
 const app = express();
 
 app.use(express.json());
+
+const whiteList = ['http://localhost:8080'];
+const options = {
+  origin: (origin, callback) => {
+    if (whiteList.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Acceso no permitido'));
+    }
+  },
+};
+app.use(cors(options));
 
 app.get('/', (req, res) => {
   res.send('Hello world from Express');
