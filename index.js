@@ -8,7 +8,7 @@ const {
   boomErrorHandler,
 } = require('./middlewares/error.handler');
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 const app = express();
 
 app.use(express.json());
@@ -16,7 +16,7 @@ app.use(express.json());
 const whiteList = ['http://localhost:8080'];
 const options = {
   origin: (origin, callback) => {
-    if (whiteList.includes(origin)) {
+    if (whiteList.includes(origin) || !origin) {
       callback(null, true);
     } else {
       callback(new Error('Acceso no permitido'));
