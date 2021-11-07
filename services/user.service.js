@@ -1,24 +1,9 @@
+const { boom } = require('@hapi/boom');
 const faker = require('faker');
 
 const { models } = require('./../libs/sequelize');
 class UserServices {
-  constructor() {
-    this.users = [];
-    this.generator();
-  }
-
-  generator() {
-    const limit = 50;
-
-    for (let index = 0; index < limit; index++) {
-      this.users.push({
-        id: faker.datatype.uuid(),
-        name: faker.name.firstName(),
-        lastName: faker.name.lastName(),
-        email: faker.internet.email(),
-      });
-    }
-  }
+  constructor() {}
 
   async find() {
     const rta = await models.User.findAll();
@@ -26,46 +11,30 @@ class UserServices {
   }
 
   async findOne(id) {
-    return this.users.find((item) => item.id === id);
+    const user = await models.User.findByPk(id);
+    if (!user) {
+      throw boom.notFound('User not found');
+    }
+
+    return user;
   }
 
   async create(data) {
-    const newUser = {
-      id: faker.datatype.uuid(),
-      ...data,
-    };
-    this.users.push(newUser);
+    const newUser = await models.User.create(data);
 
     return newUser;
   }
 
   async update(id, changes) {
-    const index = this.users.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw new Error('Error: The users cannot be updated');
-    }
-
-    const user = this.users[index];
-    this.users[index] = {
-      ...user,
-      ...changes,
-    };
-
-    return this.users[index];
+    const user = await this.findOne(id);
+    const rta = await user.update(changes);
+    return rta;
   }
 
   async delete(id) {
-    const index = this.users.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw new Error('Error: The user cannot be deleted');
-    }
-
-    this.users.splice(index, 1);
-
-    return {
-      message: 'The user have been deleted',
-      id,
-    };
+    const user = await this.findOne(id);
+    await user.destroy();
+    return { id };
   }
 }
 
