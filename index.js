@@ -6,6 +6,7 @@ const {
   logErrors,
   errorHandler,
   boomErrorHandler,
+  ormErrorHandler,
 } = require('./middlewares/error.handler');
 
 const port = process.env.PORT || 3000;
@@ -33,6 +34,7 @@ routerApi(app);
 
 //Middlewares
 app.use(logErrors);
+app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
 
