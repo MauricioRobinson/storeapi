@@ -1,5 +1,4 @@
 const { boom } = require('@hapi/boom');
-const faker = require('faker');
 
 const { models } = require('./../libs/sequelize');
 class UserServices {

@@ -32,7 +32,7 @@ const UserSchema = {
 };
 
 class User extends Model {
-  static assocciate() {
+  static associate() {
     //relations
   }
 
