@@ -1,14 +1,17 @@
 const Joi = require('joi');
 
 const id = Joi.string().uuid();
-const category = Joi.string().alphanum().min(3).max(15);
+const name = Joi.string().min(3).max(15);
+const image = Joi.string().uri();
 
 const createCategorySchema = Joi.object({
-  category: category.required(),
+  name: name.required(),
+  image: image.required(),
 });
 
 const updateCategorySchema = Joi.object({
-  category,
+  name,
+  image,
 });
 
 const getCategorySchema = Joi.object({
