@@ -1,73 +1,42 @@
-const faker = require('faker');
-const pool = require('./../libs/postgres.pool');
+const boom = require('@hapi/boom');
+const { models } = require('./../libs/sequelize');
 
 class CategoryServices {
-  constructor() {
-    this.categories = [];
-    this.generator();
-    this.pool = pool;
-    this.pool.on('error', (err) => console.log(err));
-  }
-
-  generator() {
-    const limit = 100;
-
-    for (let index = 0; index < limit; index++) {
-      this.categories.push({
-        id: faker.datatype.uuid(),
-        category: faker.commerce.product(),
-      });
-    }
-  }
+  constructor() {}
 
   async find() {
-    const query = 'SELECT * FROM tasks';
-    const rta = await this.pool.query(query);
-    return rta.rows;
+    const categories = await models.Category.findAll();
+    return categories;
   }
 
   async findOne(id) {
-    return this.categories.find((item) => item.id === id);
+    const category = await models.Category.findByPk(id, {
+      include: ['products'],
+    });
+    if (!category) {
+      throw boom.notFound('Category not found');
+    }
+
+    return category;
   }
 
   async create(data) {
-    const newCategory = {
-      id: faker.datatype.uuid(),
-      ...data,
-    };
-
-    this.categories.push(newCategory);
-
+    const newCategory = await models.Category.create(data);
     return newCategory;
   }
 
   async update(id, changes) {
-    const index = this.categories.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw new Error('Error: Category cannot be changed');
-    }
+    const category = await this.findOne(id);
+    const updateCategory = await category.update(changes);
 
-    const category = this.categories[index];
-    this.categories[index] = {
-      ...category,
-      ...changes,
-    };
-
-    return this.categories[index];
+    return updateCategory;
   }
 
   async delete(id) {
-    const index = this.categories.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw new Error('Error: Category cannot be changed');
-    }
+    const category = await this.find(id);
+    await category.destroy();
 
-    this.categories.splice(index, 1);
-
-    return {
-      message: 'The category have been deleted',
-      id,
-    };
+    return { id };
   }
 }
 
