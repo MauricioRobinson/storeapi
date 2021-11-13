@@ -10,10 +10,6 @@ const OrderProductSchema = {
     autoIncrement: true,
     type: DataTypes.INTEGER,
   },
-  amount: {
-    allowNull: false,
-    type: DataTypes.INTEGER,
-  },
   orderId: {
     allowNull: false,
     field: 'order_id',
@@ -35,6 +31,10 @@ const OrderProductSchema = {
     },
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL',
+  },
+  amount: {
+    allowNull: false,
+    type: DataTypes.INTEGER,
   },
   createdAt: {
     allowNull: false,
@@ -59,7 +59,7 @@ class OrderProduct extends Model {
   static config(sequelize) {
     return {
       sequelize,
-      tableName: ORDER_TABLE,
+      tableName: ORDER_PRODUCT_TABLE,
       modelName: 'OrderProduct',
       timestamp: false,
     };
