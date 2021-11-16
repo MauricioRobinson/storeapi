@@ -6,10 +6,19 @@ class UserServices {
   constructor() {}
 
   async find() {
-    const rta = await models.User.findAll({
+    const user = await models.User.findAll({
       include: ['customer'],
     });
-    return rta;
+    return user;
+  }
+
+  async findByEmail(email) {
+    const user = await models.User.findOne({
+      where: {
+        email,
+      },
+    });
+    return user;
   }
 
   async findOne(id) {
