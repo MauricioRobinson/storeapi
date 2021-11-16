@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 
 const CustomerServices = require('./../services/customer.service');
 const validatorHandler = require('./../middlewares/validator.handler');
@@ -36,6 +37,7 @@ router.get(
 
 router.post(
   '/',
+  passport.authenticate('jwt', { session: false }),
   validatorHandler(createCustomerSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -51,6 +53,7 @@ router.post(
 
 router.patch(
   '/:id',
+  passport.authenticate('jwt', { session: false }),
   validatorHandler(updateCustomerSchema, 'params'),
   validatorHandler(updateCustomerSchema, 'body'),
   async (req, res, next) => {
@@ -66,15 +69,19 @@ router.patch(
   }
 );
 
-router.delete('/:id', async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const deleteCustomer = await service.delete(id);
+router.delete(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const deleteCustomer = await service.delete(id);
 
-    res.json(deleteCustomer);
-  } catch (error) {
-    next(error);
+      res.json(deleteCustomer);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 module.exports = router;

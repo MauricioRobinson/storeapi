@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 
 const UserServices = require('./../services/user.service');
 const validatorHandler = require('./../middlewares/validator.handler');
@@ -38,6 +39,7 @@ router.get(
 
 router.post(
   '/',
+  passport.authenticate('jwt', { session: false }),
   validatorHandler(createUserSchema, 'body'),
   async (req, res) => {
     const body = req.body;
@@ -47,22 +49,27 @@ router.post(
   }
 );
 
-router.patch('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const body = req.body;
-    const updateUser = await service.update(id, body);
+router.patch(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const body = req.body;
+      const updateUser = await service.update(id, body);
 
-    res.status(200).json(updateUser);
-  } catch (err) {
-    res.status(404).json({
-      message: err.message,
-    });
+      res.status(200).json(updateUser);
+    } catch (err) {
+      res.status(404).json({
+        message: err.message,
+      });
+    }
   }
-});
+);
 
 router.delete(
   '/:id',
+  passport.authenticate('jwt', { session: false }),
   validatorHandler(getUserSchema, 'params'),
   validatorHandler(updateUserSchema, 'body'),
   async (req, res) => {

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 
 const CategoryServices = require('./../services/category.service');
 const validatorHandler = require('./../middlewares/validator.handler');
@@ -33,21 +34,9 @@ router.get(
   }
 );
 
-router.get(
-  '/:categoryId/products/:productId',
-  validatorHandler(getCategorySchema, 'params'),
-  async (req, res) => {
-    const { categoryId, productId } = req.params;
-
-    res.json({
-      categoryId,
-      productId,
-    });
-  }
-);
-
 router.post(
   '/',
+  passport.authenticate('jwt', { session: false }),
   validatorHandler(createCategorySchema, 'body'),
   async (req, res, next) => {
     try {
@@ -61,7 +50,7 @@ router.post(
 );
 
 router.patch(
-  '/:id',
+  '/:id', passport.authenticate('jwt', { session: false }),
   validatorHandler(getCategorySchema, 'params'),
   validatorHandler(updateCategorySchema, 'body'),
   async (req, res, next) => {
@@ -77,7 +66,7 @@ router.patch(
   }
 );
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
   try {
     const { id } = req.params;
     const deleteCategory = await service.delete(id);
