@@ -4,6 +4,7 @@ const passport = require('passport');
 
 const CategoryServices = require('./../services/category.service');
 const validatorHandler = require('./../middlewares/validator.handler');
+const { checkRoles } = require('./../middlewares/auth.handler');
 const {
   createCategorySchema,
   updateCategorySchema,
@@ -11,17 +12,24 @@ const {
 } = require('./../schemas/category.schema');
 const service = new CategoryServices();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const categories = service.find();
-    res.json(categories);
-  } catch (error) {
-    next(error);
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'customer'),
+  async (req, res, next) => {
+    try {
+      const categories = await service.find();
+      res.json(categories);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get(
   '/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'customer'),
   validatorHandler(getCategorySchema, 'params'),
   async (req, res, next) => {
     try {
@@ -37,6 +45,7 @@ router.get(
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
+  checkRoles('admin'),
   validatorHandler(createCategorySchema, 'body'),
   async (req, res, next) => {
     try {
@@ -50,7 +59,9 @@ router.post(
 );
 
 router.patch(
-  '/:id', passport.authenticate('jwt', { session: false }),
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin'),
   validatorHandler(getCategorySchema, 'params'),
   validatorHandler(updateCategorySchema, 'body'),
   async (req, res, next) => {
@@ -66,14 +77,19 @@ router.patch(
   }
 );
 
-router.delete('/:id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const deleteCategory = await service.delete(id);
-    res.json(deleteCategory);
-  } catch (error) {
-    next(error);
+router.delete(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const deleteCategory = await service.delete(id);
+      res.json(deleteCategory);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 module.exports = router;
