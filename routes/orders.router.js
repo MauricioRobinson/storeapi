@@ -4,6 +4,7 @@ const passport = require('passport');
 
 const OrderServices = require('./../services/order.service');
 const validatorHandler = require('./../middlewares/validator.handler');
+const { checkRoles } = require('./../middlewares/auth.handler');
 const {
   addItemSchema,
   createOrderSchema,
@@ -11,17 +12,24 @@ const {
 } = require('./../schemas/order.schema');
 const service = new OrderServices();
 
-router.get('/', async (req, res, next) => {
-  try {
-    const orders = await service.find();
-    res.json(orders);
-  } catch (error) {
-    next(error);
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'customer'),
+  async (req, res, next) => {
+    try {
+      const orders = await service.find();
+      res.json(orders);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get(
   '/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'customer'),
   validatorHandler(getOrderSchema, 'params'),
   async (req, res, next) => {
     try {
@@ -38,6 +46,8 @@ router.get(
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'customer'),
+  passport.authenticate('jwt', { session: false }),
   validatorHandler(createOrderSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -53,6 +63,8 @@ router.post(
 router.post(
   '/add-item',
   passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'customer'),
+  passport.authenticate('jwt', { session: false }),
   validatorHandler(addItemSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -67,6 +79,8 @@ router.post(
 
 router.delete(
   '/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'customer'),
   passport.authenticate('jwt', { session: false }),
   async (req, res, next) => {
     try {
