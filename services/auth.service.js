@@ -28,6 +28,7 @@ class AuthService {
       role: user.role,
     };
     const token = await jwt.sign(payload, config.jwtSecret);
+    delete user.dataValues.recoveryToken;
     return {
       user,
       token,
@@ -54,6 +55,23 @@ class AuthService {
 
     const sendMail = await this.sendMail(mail);
     return sendMail;
+  }
+
+  async changePassword(token, newPassword) {
+    try {
+      const payload = jwt.verify(token, config.jwtSecret);
+      const user = await service.findOne(payload.sub);
+      if (user.recoveryToken !== token) {
+        throw boom.unauthorized();
+      }
+
+      const hash = await bcrypt.hash(newPassword, 10);
+      await service.update(user.id, { recoveryToken: null, password: hash });
+
+      return { message: 'password changed' };
+    } catch (error) {
+      throw boom.unauthorized();
+    }
   }
 
   async sendMail(infoMail) {
